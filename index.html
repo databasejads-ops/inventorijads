@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Inventori</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">Inventori Gudang</div>
+    <nav class="nav">
+      <a class="active" href="index.html">Dashboard</a>
+      <a href="barang-masuk.html">Barang Masuk</a>
+      <a href="proses-pesanan.html">Proses Pesanan</a>
+      <a href="stok-realtime.html">Stok Realtime</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Ringkasan aktivitas inventori.</p>
+      </div>
+    </header>
+
+    <section class="cards">
+      <div class="card"><div class="stat-title">Jumlah transaksi masuk</div><div class="stat-value" id="totalMasuk">0</div></div>
+      <div class="card"><div class="stat-title">Total qty masuk</div><div class="stat-value" id="qtyMasuk">0</div></div>
+      <div class="card"><div class="stat-title">Jumlah pesanan</div><div class="stat-value" id="totalPesanan">0</div></div>
+      <div class="card"><div class="stat-title">Total qty pesanan</div><div class="stat-value" id="qtyPesanan">0</div></div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <h2>Menu Utama</h2>
+        <div class="quick-links">
+          <a class="quick-link" href="barang-masuk.html">
+            <strong>Barang Masuk</strong>
+            <span>Input tanggal, SKU, lokasi, milik, jumlah, dan catatan.</span>
+          </a>
+          <a class="quick-link" href="proses-pesanan.html">
+            <strong>Proses Pesanan</strong>
+            <span>Kelola pesanan, status, packing, pengiriman, dan alamat.</span>
+          </a>
+          <a class="quick-link" href="stok-realtime.html">
+            <strong>Stok Realtime</strong>
+            <span>Lihat total masuk, total keluar, dan stok akhir setiap SKU.</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Informasi</h2>
+        <p>Aplikasi demo ini menyimpan data di browser menggunakan <b>localStorage</b>.</p>
+        <p>Data dapat digunakan untuk latihan sebelum dihubungkan ke database seperti Supabase.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const masuk = readData(KEYS.masuk, sampleMasuk);
+  const pesanan = readData(KEYS.pesanan, samplePesanan);
+
+  document.getElementById("totalMasuk").textContent = masuk.length;
+  document.getElementById("qtyMasuk").textContent = masuk.reduce((a,b) => a + Number(b.jumlah || 0), 0);
+  document.getElementById("totalPesanan").textContent = pesanan.length;
+  document.getElementById("qtyPesanan").textContent = pesanan.reduce((a,b) => a + Number(b.jumlah || 0), 0);
+</script>
+</body>
+</html>

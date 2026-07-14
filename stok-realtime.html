@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stok Realtime</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">Inventori Gudang</div>
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="barang-masuk.html">Barang Masuk</a>
+      <a href="proses-pesanan.html">Proses Pesanan</a>
+      <a class="active" href="stok-realtime.html">Stok Realtime</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <div>
+        <h1>Stok Realtime</h1>
+        <p>Stok dihitung otomatis: total barang masuk dikurangi total barang keluar.</p>
+      </div>
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <div class="stat-title">Jumlah SKU</div>
+        <div class="stat-value" id="jumlahSku">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Total Barang Masuk</div>
+        <div class="stat-value" id="totalMasuk">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Total Barang Keluar</div>
+        <div class="stat-value" id="totalKeluar">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Total Stok Akhir</div>
+        <div class="stat-value" id="totalStok">0</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="cariSku">Cari SKU</label>
+          <input id="cariSku" type="text" placeholder="Ketik SKU barang">
+        </div>
+        <div class="form-group">
+          <label for="filterLokasi">Filter Lokasi</label>
+          <select id="filterLokasi">
+            <option value="">Semua lokasi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filterMilik">Filter Milik</label>
+          <select id="filterMilik">
+            <option value="">Semua</option>
+            <option value="JA">JA</option>
+            <option value="DS">DS</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <h2>Daftar Stok Realtime</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>SKU Barang</th>
+              <th>Lokasi</th>
+              <th>Milik</th>
+              <th>Total Masuk</th>
+              <th>Total Keluar</th>
+              <th>Stok Akhir</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyStok"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const dataMasuk = readData(KEYS.masuk, sampleMasuk);
+  const dataPesanan = readData(KEYS.pesanan, samplePesanan);
+  let stokRealtime = hitungStokRealtime(dataMasuk, dataPesanan);
+
+  const cariSku = document.getElementById("cariSku");
+  const filterLokasi = document.getElementById("filterLokasi");
+  const filterMilik = document.getElementById("filterMilik");
+
+  function isiFilterLokasi() {
+    const lokasi = [...new Set(stokRealtime.flatMap(item => item.lokasi))].sort();
+    for (const item of lokasi) {
+      const option = document.createElement("option");
+      option.value = item;
+      option.textContent = item;
+      filterLokasi.appendChild(option);
+    }
+  }
+
+  function renderRingkasan() {
+    document.getElementById("jumlahSku").textContent = stokRealtime.length;
+    document.getElementById("totalMasuk").textContent =
+      stokRealtime.reduce((total, item) => total + item.totalMasuk, 0);
+    document.getElementById("totalKeluar").textContent =
+      stokRealtime.reduce((total, item) => total + item.totalKeluar, 0);
+    document.getElementById("totalStok").textContent =
+      stokRealtime.reduce((total, item) => total + item.stokAkhir, 0);
+  }
+
+  function renderStok() {
+    const kataKunci = cariSku.value.trim().toLowerCase();
+    const lokasi = filterLokasi.value;
+    const milik = filterMilik.value;
+
+    const hasil = stokRealtime.filter(item => {
+      const cocokSku = item.sku.toLowerCase().includes(kataKunci);
+      const cocokLokasi = !lokasi || item.lokasi.includes(lokasi);
+      const cocokMilik = !milik || item.milik.includes(milik);
+      return cocokSku && cocokLokasi && cocokMilik;
+    });
+
+    const tbody = document.getElementById("tbodyStok");
+
+    if (!hasil.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty">Data stok tidak ditemukan.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = hasil.map((item, index) => {
+      const statusClass = item.stokAkhir > 0 ? "green" : item.stokAkhir === 0 ? "amber" : "red";
+      const statusText = item.stokAkhir > 0 ? "Tersedia" : item.stokAkhir === 0 ? "Habis" : "Minus";
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong>${esc(item.sku)}</strong></td>
+          <td>${item.lokasi.length ? item.lokasi.map(x => `<span class="badge blue">${esc(x)}</span>`).join(" ") : "-"}</td>
+          <td>${item.milik.length ? item.milik.map(x => `<span class="badge red">${esc(x)}</span>`).join(" ") : "-"}</td>
+          <td>${item.totalMasuk}</td>
+          <td>${item.totalKeluar}</td>
+          <td><strong>${item.stokAkhir}</strong></td>
+          <td><span class="badge ${statusClass}">${statusText}</span></td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  [cariSku, filterLokasi, filterMilik].forEach(element => {
+    element.addEventListener("input", renderStok);
+    element.addEventListener("change", renderStok);
+  });
+
+  isiFilterLokasi();
+  renderRingkasan();
+  renderStok();
+</script>
+</body>
+</html>
