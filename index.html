@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="main">
+<header class="page-header"><div><h1>Dashboard</h1><p>Ringkasan aplikasi inventori berdasarkan sheet Administrasi Gudang.</p></div></header>
+
+<section class="cards">
+<div class="card"><div class="stat-title">Transaksi Barang Masuk</div><div class="stat-value" id="dMasuk">0</div></div>
+<div class="card"><div class="stat-title">Total Qty Masuk</div><div class="stat-value" id="dQtyMasuk">0</div></div>
+<div class="card"><div class="stat-title">Proses Pesanan</div><div class="stat-value" id="dPesanan">0</div></div>
+<div class="card"><div class="stat-title">Jumlah SKU Master</div><div class="stat-value" id="dSku">0</div></div>
+</section>
+<section class="card"><h2>Menu sesuai sheet Administrasi Gudang</h2><div class="quick-grid" id="quickGrid"></div></section>
+
+</main></div>
+<script src="sku-master.js"></script><script src="app.js"></script>
+<script>renderNavigation("dashboard");</script>
+
+<script>
+const dm=readData(KEYS.masuk,sampleMasuk),dp=readData(KEYS.pesanan,samplePesanan);
+document.getElementById("dMasuk").textContent=dm.length;
+document.getElementById("dQtyMasuk").textContent=dm.reduce((a,b)=>a+Number(b.jumlah||0),0);
+document.getElementById("dPesanan").textContent=dp.length;
+document.getElementById("dSku").textContent=SKU_MASTER.length;
+document.getElementById("quickGrid").innerHTML=NAV_ITEMS.filter(x=>x[2]!=="dashboard").map(x=>
+`<a class="quick-link" href="${x[0]}"><strong>${x[1]}</strong><span>Buka halaman ${x[1]}.</span></a>`).join("");
+</script>
+
+</body></html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proses Pesanan</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="main">
+<header class="page-header"><div><h1>Proses Pesanan</h1><p>Belum ada pesanan; data awal dikosongkan.</p></div></header>
+
+<section class="card"><form id="formPesanan"><div class="form-grid">
+<div class="form-group"><label>Tanggal Masuk</label><input type="date" id="pTanggal" required></div>
+<div class="form-group"><label>No. PO</label><input type="text" id="pNoPo"></div>
+<div class="form-group"><label>Nama Pelanggan</label><input type="text" id="pPelanggan" required></div>
+<div class="form-group"><label>SKU Barang</label><input type="text" id="pSku" list="skuSuggestionsPesanan" autocomplete="off" placeholder="Ketik SKU..." required><datalist id="skuSuggestionsPesanan"></datalist></div>
+<div class="form-group"><label>Lokasi</label><select id="pLokasi"><option>59</option><option>61</option><option>92</option></select></div>
+<div class="form-group"><label>Penjual</label><select id="pPenjual"><option>JA</option><option>DS</option></select></div>
+<div class="form-group"><label>Jumlah</label><input type="number" id="pJumlah" min="1" required></div>
+<div class="form-group"><label>Status</label><select id="pStatus"><option>01 Pesanan Masuk</option><option>02 Tunggu Barang Datang</option><option>03 QC</option><option>04 Dikirim</option></select></div>
+<div class="form-group"><label>Prioritas</label><select id="pPrioritas"><option>Normal</option><option>Segera Kirim</option></select></div>
+<div class="form-group"><label>Sales</label><input type="text" id="pSales"></div>
+<div class="form-group"><label>Packing</label><select id="pPacking"><option>Standar</option><option>Kayu</option><option>Bubble Wrap</option></select></div>
+<div class="form-group"><label>Pengiriman</label><select id="pPengiriman"><option>Dibawa Langsung</option><option>Kurir Toko</option><option>Gojek Bike</option><option>Instant</option><option>Ekspedisi</option></select></div>
+<div class="form-group full"><label>Alamat</label><textarea id="pAlamat"></textarea></div>
+<div class="form-group"><label>Tanggal Kirim</label><input type="date" id="pTanggalKirim"></div>
+<div class="form-group"><label>Catatan</label><input type="text" id="pCatatan"></div>
+</div><div class="actions"><button class="btn-primary">Simpan Pesanan</button><button type="button" class="btn-secondary" id="hapusSemua">Hapus Semua Pesanan</button></div><div id="noticePesanan" class="notice"></div></form></section>
+<section class="card table-card"><h2>Data Proses Pesanan</h2><div class="table-wrap"><table>
+<thead><tr><th>No.</th><th>Tanggal Masuk</th><th>No. PO</th><th>Pelanggan</th><th>SKU</th><th>Lokasi</th><th>Penjual</th><th>Jumlah</th><th>Status</th><th>Prioritas</th><th>Sales</th><th>Packing</th><th>Pengiriman</th><th>Alamat</th><th>Tanggal Kirim</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody id="tbodyPesanan"></tbody>
+</table></div></section>
+
+</main></div>
+<script src="sku-master.js"></script><script src="app.js"></script>
+<script>renderNavigation("proses-pesanan");</script>
+
+<script>
+let dataPesanan=readData(KEYS.pesanan,samplePesanan);
+pTanggal.value=new Date().toISOString().slice(0,10);setupSkuSuggestions("pSku","skuSuggestionsPesanan");
+function renderPesanan(){tbodyPesanan.innerHTML=dataPesanan.length?dataPesanan.map((x,i)=>`<tr><td>${i+1}</td><td>${formatDate(x.tanggal)}</td><td>${esc(x.noPo||"-")}</td><td>${esc(x.pelanggan)}</td><td>${esc(x.sku)}</td><td><span class="badge blue">${esc(x.lokasi)}</span></td><td><span class="badge red">${esc(x.penjual)}</span></td><td>${x.jumlah}</td><td><span class="badge ${statusBadge(x.status)}">${esc(x.status)}</span></td><td>${esc(x.prioritas)}</td><td>${esc(x.sales||"-")}</td><td>${esc(x.packing||"-")}</td><td>${esc(x.pengiriman||"-")}</td><td>${esc(x.alamat||"-")}</td><td>${formatDate(x.tanggalKirim)}</td><td>${esc(x.catatan||"-")}</td><td><button class="btn-danger" onclick="hapusPesanan('${x.id}')">Hapus</button></td></tr>`).join(""):'<tr><td colspan="17" class="empty">Belum ada pesanan sama sekali.</td></tr>'}
+formPesanan.addEventListener("submit",e=>{e.preventDefault();dataPesanan.push({id:uid(),tanggal:pTanggal.value,noPo:pNoPo.value.trim(),pelanggan:pPelanggan.value.trim(),sku:pSku.value.trim(),lokasi:pLokasi.value,penjual:pPenjual.value,jumlah:Number(pJumlah.value),status:pStatus.value,prioritas:pPrioritas.value,sales:pSales.value.trim(),packing:pPacking.value,pengiriman:pPengiriman.value,alamat:pAlamat.value.trim(),tanggalKirim:pTanggalKirim.value,catatan:pCatatan.value.trim()});saveData(KEYS.pesanan,dataPesanan);e.target.reset();pTanggal.value=new Date().toISOString().slice(0,10);renderPesanan();setNotice("noticePesanan","Pesanan berhasil disimpan.")});
+function hapusPesanan(id){if(!confirm("Hapus pesanan ini?"))return;dataPesanan=dataPesanan.filter(x=>x.id!==id);saveData(KEYS.pesanan,dataPesanan);renderPesanan()}
+hapusSemua.addEventListener("click",()=>{if(!dataPesanan.length){setNotice("noticePesanan","Belum ada pesanan untuk dihapus.","error");return}if(confirm("Hapus seluruh proses pesanan?")){dataPesanan=[];saveData(KEYS.pesanan,[]);renderPesanan()}});
+renderPesanan();
+</script>
+
+</body></html>

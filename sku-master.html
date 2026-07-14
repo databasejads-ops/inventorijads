@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKU Master</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="main">
+<header class="page-header"><div><h1>SKU Master</h1><p>Daftar SKU dan nama barang dari file Administrasi Gudang.</p></div></header>
+
+<section class="card"><div class="toolbar"><div class="form-group"><label>Cari SKU / Nama Barang</label><input id="cariMaster" placeholder="Contoh: GETRA atau 1400PT"></div></div><p class="code-note">Data SKU Master diambil dari sheet “SKU Master” pada file yang Anda unggah.</p></section>
+<section class="card table-card"><h2>Daftar SKU Master</h2><div class="table-wrap"><table><thead><tr><th>No.</th><th>SKU</th><th>Nama Barang</th></tr></thead><tbody id="tbodyMaster"></tbody></table></div></section>
+
+</main></div>
+<script src="sku-master.js"></script><script src="app.js"></script>
+<script>renderNavigation("sku-master");</script>
+
+<script>
+function renderMaster(){const q=cariMaster.value.toLowerCase();const data=SKU_MASTER.filter(x=>x.sku.toLowerCase().includes(q)||x.nama.toLowerCase().includes(q));tbodyMaster.innerHTML=data.map((x,i)=>`<tr><td>${i+1}</td><td><strong>${esc(x.sku)}</strong></td><td>${esc(x.nama)}</td></tr>`).join("")}
+cariMaster.addEventListener("input",renderMaster);renderMaster();
+</script>
+
+</body></html>

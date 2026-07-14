@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stok Realtime</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="main">
+<header class="page-header"><div><h1>Stok Realtime</h1><p>Stok = barang masuk dikurangi jumlah pada Proses Pesanan.</p></div></header>
+
+<section class="cards"><div class="card"><div class="stat-title">Jumlah SKU</div><div class="stat-value" id="jumlahSku">0</div></div>
+<div class="card"><div class="stat-title">Total Masuk</div><div class="stat-value" id="totalMasuk">0</div></div>
+<div class="card"><div class="stat-title">Total Keluar</div><div class="stat-value" id="totalKeluar">0</div></div>
+<div class="card"><div class="stat-title">Stok Akhir</div><div class="stat-value" id="totalStok">0</div></div></section>
+<section class="card"><div class="toolbar"><div class="form-group"><label>Cari SKU</label><input id="cariSku" placeholder="Ketik SKU"></div><div class="form-group"><label>Lokasi</label><select id="filterLokasi"><option value="">Semua lokasi</option></select></div><div class="form-group"><label>Milik</label><select id="filterMilik"><option value="">Semua</option><option>JA</option><option>DS</option></select></div></div></section>
+<section class="card table-card"><h2>Stok Realtime</h2><div class="table-wrap"><table><thead><tr><th>No.</th><th>SKU</th><th>Lokasi</th><th>Milik</th><th>Total Masuk</th><th>Total Keluar</th><th>Stok Akhir</th><th>Status</th></tr></thead><tbody id="tbodyStok"></tbody></table></div></section>
+
+</main></div>
+<script src="sku-master.js"></script><script src="app.js"></script>
+<script>renderNavigation("stok-realtime");</script>
+
+<script>
+const sm=readData(KEYS.masuk,sampleMasuk),sp=readData(KEYS.pesanan,samplePesanan);let sr=hitungStokRealtime(sm,sp);
+[...new Set(sr.flatMap(x=>x.lokasi))].sort().forEach(x=>filterLokasi.insertAdjacentHTML("beforeend",`<option>${esc(x)}</option>`));
+function ringkas(){jumlahSku.textContent=sr.length;totalMasuk.textContent=sr.reduce((a,b)=>a+b.totalMasuk,0);totalKeluar.textContent=sr.reduce((a,b)=>a+b.totalKeluar,0);totalStok.textContent=sr.reduce((a,b)=>a+b.stokAkhir,0)}
+function renderStok(){const q=cariSku.value.toLowerCase(),l=filterLokasi.value,m=filterMilik.value;const data=sr.filter(x=>x.sku.toLowerCase().includes(q)&&(!l||x.lokasi.includes(l))&&(!m||x.milik.includes(m)));tbodyStok.innerHTML=data.length?data.map((x,i)=>{const c=x.stokAkhir>0?"green":x.stokAkhir===0?"amber":"red";const t=x.stokAkhir>0?"Tersedia":x.stokAkhir===0?"Habis":"Minus";return`<tr><td>${i+1}</td><td><strong>${esc(x.sku)}</strong></td><td>${x.lokasi.join(", ")||"-"}</td><td>${x.milik.join(", ")||"-"}</td><td>${x.totalMasuk}</td><td>${x.totalKeluar}</td><td><strong>${x.stokAkhir}</strong></td><td><span class="badge ${c}">${t}</span></td></tr>`}).join(""):'<tr><td colspan="8" class="empty">Data tidak ditemukan.</td></tr>'}
+[cariSku,filterLokasi,filterMilik].forEach(x=>{x.addEventListener("input",renderStok);x.addEventListener("change",renderStok)});ringkas();renderStok();
+</script>
+
+</body></html>

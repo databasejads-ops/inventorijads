@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barang Masuk</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="main">
+<header class="page-header"><div><h1>Barang Masuk</h1><p>Input mengikuti kolom pada sheet Barang Masuk.</p></div></header>
+
+<section class="card"><form id="formMasuk"><div class="form-grid">
+<div class="form-group"><label>Tanggal</label><input type="date" id="tanggal" required></div>
+<div class="form-group"><label>SKU Barang</label><input type="text" id="sku" list="skuSuggestionsMasuk" autocomplete="off" placeholder="Ketik SKU..." required><datalist id="skuSuggestionsMasuk"></datalist></div>
+<div class="form-group"><label>Lokasi</label><select id="lokasi"><option>59</option><option>61</option><option>92</option><option>RSA</option><option>Fomac</option><option>Crown</option><option>Sinmag</option></select></div>
+<div class="form-group"><label>Milik</label><select id="milik"><option>JA</option><option>DS</option></select></div>
+<div class="form-group"><label>Jumlah</label><input type="number" id="jumlah" min="1" required></div>
+<div class="form-group"><label>Catatan</label><input type="text" id="catatan"></div>
+</div><div class="actions"><button class="btn-primary">Simpan Barang Masuk</button></div><div id="noticeMasuk" class="notice"></div></form></section>
+<section class="card table-card"><h2>Data Barang Masuk</h2><div class="table-wrap"><table>
+<thead><tr><th>No.</th><th>Tanggal</th><th>SKU Barang</th><th>Lokasi</th><th>Milik</th><th>Jumlah</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody id="tbodyMasuk"></tbody>
+</table></div></section>
+
+</main></div>
+<script src="sku-master.js"></script><script src="app.js"></script>
+<script>renderNavigation("barang-masuk");</script>
+
+<script>
+let dataMasuk=readData(KEYS.masuk,sampleMasuk);
+tanggal.value=new Date().toISOString().slice(0,10);setupSkuSuggestions("sku","skuSuggestionsMasuk");
+function renderMasuk(){tbodyMasuk.innerHTML=dataMasuk.length?dataMasuk.map((x,i)=>`<tr><td>${i+1}</td><td>${formatDate(x.tanggal)}</td><td>${esc(x.sku)}</td><td><span class="badge blue">${esc(x.lokasi)}</span></td><td><span class="badge red">${esc(x.milik)}</span></td><td>${x.jumlah}</td><td>${esc(x.catatan||"-")}</td><td><button class="btn-danger" onclick="hapusMasuk('${x.id}')">Hapus</button></td></tr>`).join(""):'<tr><td colspan="8" class="empty">Belum ada data.</td></tr>'}
+formMasuk.addEventListener("submit",e=>{e.preventDefault();dataMasuk.push({id:uid(),tanggal:tanggal.value,sku:sku.value.trim(),lokasi:lokasi.value,milik:milik.value,jumlah:Number(jumlah.value),catatan:catatan.value.trim()});saveData(KEYS.masuk,dataMasuk);e.target.reset();tanggal.value=new Date().toISOString().slice(0,10);renderMasuk();setNotice("noticeMasuk","Barang masuk berhasil disimpan.")});
+function hapusMasuk(id){if(!confirm("Hapus data ini?"))return;dataMasuk=dataMasuk.filter(x=>x.id!==id);saveData(KEYS.masuk,dataMasuk);renderMasuk()}
+renderMasuk();
+</script>
+
+</body></html>
