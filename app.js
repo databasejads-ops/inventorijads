@@ -10,12 +10,6 @@ const sampleMasuk = [
   {id:"bm4", tanggal:"2026-02-15", sku:"1400PTGETRA", lokasi:"59", milik:"JA", jumlah:6, catatan:""}
 ];
 
-const samplePesanan = [
-  {id:"pp1", tanggal:"2026-04-21", noPo:"PO 56", pelanggan:"Diar Kusuma Putra", sku:"DS-GT-433/SS201", lokasi:"61", penjual:"JA", jumlah:1, status:"04 Dikirim", prioritas:"Segera Kirim", sales:"Wulan", packing:"Standar", pengiriman:"Dibawa Langsung", alamat:"Jl. Manyar Jaya Praja V", tanggalKirim:"2026-04-21", catatan:""},
-  {id:"pp2", tanggal:"2026-04-21", noPo:"PO 56", pelanggan:"Hair susanto", sku:"DS-GT-433/SS201", lokasi:"61", penjual:"JA", jumlah:2, status:"04 Dikirim", prioritas:"Segera Kirim", sales:"Kevin", packing:"Standar", pengiriman:"Dibawa Langsung", alamat:"Sunan Mulya No. 42 Tuban", tanggalKirim:"2026-04-21", catatan:""},
-  {id:"pp3", tanggal:"2026-04-21", noPo:"", pelanggan:"Rangga", sku:"DS-FP-1/6-4", lokasi:"61", penjual:"JA", jumlah:1, status:"04 Dikirim", prioritas:"Normal", sales:"Wulan", packing:"Standar", pengiriman:"Dibawa Langsung", alamat:"Sepanjang Taman Sidoarjo", tanggalKirim:"2026-04-21", catatan:""}
-];
-
 function uid() {
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
